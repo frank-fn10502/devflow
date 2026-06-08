@@ -1,0 +1,17 @@
+# Local environment and secrets.
+.env
+.env.*
+!.env.example
+
+# macOS metadata.
+.DS_Store
+
+# Historical or accidental bind-mounted service data.
+# Persistent service data should live in external Docker volumes instead.
+data/
+
+# Editor and temporary files.
+*.swp
+*.swo
+*~
+
