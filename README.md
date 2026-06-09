@@ -60,7 +60,7 @@ When upgrading, read the release notes first, update the tags deliberately, then
 
 DevFlow uses the `52xx` host port range:
 
-- Gitea Web: http://localhost:5200
+- Gitea Web: http://gitea.localhost:5200
 - Gitea SSH: `ssh://git@localhost:5222/...`
 - Woodpecker: http://localhost:5201
 
@@ -76,15 +76,17 @@ Current allocation:
 5222  Gitea SSH Git endpoint
 ```
 
-When adding new services to this compose stack, prefer the next nearby `52xx` port instead of unrelated defaults such as `3000`, `8000`, or `8080`. Container-internal ports can stay at each image's default; this convention is for host-facing ports.
+When adding new services to this compose stack, prefer the next nearby `52xx` port instead of unrelated defaults such as `3000`, `8000`, or `8080`.
+
+Gitea intentionally uses `http://gitea.localhost:5200` instead of `http://gitea:3000` or `http://localhost:5200` as the forge URL. Browser links need a host-reachable URL, while Woodpecker containers also need to call the same URL. The compose file gives the Gitea service the Docker network alias `gitea.localhost` and makes Gitea listen on container port `5200`, so the same URL works from both places.
 
 ## Woodpecker OAuth
 
 Create an OAuth2 application in Gitea before signing in to Woodpecker.
 
-1. Open Gitea: http://localhost:5200
+1. Open Gitea: http://gitea.localhost:5200
 2. Sign in with your Gitea user.
-3. Open user settings: http://localhost:5200/user/settings/applications
+3. Open user settings: http://gitea.localhost:5200/user/settings/applications
 4. In "Manage OAuth2 Applications", create a new OAuth2 application.
 5. Use these values:
 

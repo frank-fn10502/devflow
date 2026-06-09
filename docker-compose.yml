@@ -11,15 +11,23 @@ services:
       USER_UID: "1000"
       USER_GID: "1000"
       GITEA__server__DOMAIN: localhost
-      GITEA__server__ROOT_URL: http://localhost:5200/
+      GITEA__server__HTTP_PORT: "5200"
+      GITEA__server__ROOT_URL: http://gitea.localhost:5200/
       GITEA__server__SSH_DOMAIN: localhost
       GITEA__server__SSH_PORT: "5222"
       GITEA__webhook__ALLOWED_HOST_LIST: external,loopback,private,woodpecker-server
       GITEA__ui__DEFAULT_THEME: gitea-auto
     ports:
       # DevFlow reserves the 52xx host port range.
-      - "5200:3000"
+      - "5200:5200"
       - "5222:22"
+    networks:
+      default:
+        aliases:
+          # Use the same Gitea URL from browsers and Docker containers.
+          # Browsers resolve *.localhost to loopback; Docker resolves this
+          # alias to the Gitea container on the devflow network.
+          - gitea.localhost
     volumes:
       # Persistent Git server state. This is an external volume on purpose:
       # never let Compose own it, because `docker compose down -v` would
@@ -47,10 +55,10 @@ services:
       WOODPECKER_HOST: ${WOODPECKER_HOST:-http://localhost:5201}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
       WOODPECKER_GITEA: "true"
-      WOODPECKER_GITEA_URL: ${WOODPECKER_GITEA_URL:-http://gitea:3000}
+      WOODPECKER_GITEA_URL: ${WOODPECKER_GITEA_URL:-http://gitea.localhost:5200}
       WOODPECKER_GITEA_CLIENT: ${WOODPECKER_GITEA_CLIENT}
       WOODPECKER_GITEA_SECRET: ${WOODPECKER_GITEA_SECRET}
-      WOODPECKER_EXPERT_FORGE_OAUTH_HOST: ${WOODPECKER_EXPERT_FORGE_OAUTH_HOST:-http://localhost:5200}
+      WOODPECKER_EXPERT_FORGE_OAUTH_HOST: ${WOODPECKER_EXPERT_FORGE_OAUTH_HOST:-http://gitea.localhost:5200}
       WOODPECKER_EXPERT_WEBHOOK_HOST: ${WOODPECKER_EXPERT_WEBHOOK_HOST:-http://woodpecker-server:8000}
     volumes:
       # Persistent Woodpecker server state, including SQLite metadata.
