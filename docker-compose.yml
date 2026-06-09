@@ -40,7 +40,10 @@ services:
       - "5201:8000"
     environment:
       WOODPECKER_OPEN: "true"
-      WOODPECKER_ADMIN: ${WOODPECKER_ADMIN:-}
+      # Single source of truth for the first admin account:
+      # scripts/init-devflow.sh creates this Gitea admin user, and Woodpecker
+      # grants admin permissions to the same username.
+      WOODPECKER_ADMIN: ${GITEA_ADMIN_USERNAME:-}
       WOODPECKER_HOST: ${WOODPECKER_HOST:-http://localhost:5201}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
       WOODPECKER_GITEA: "true"

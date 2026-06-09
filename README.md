@@ -6,13 +6,33 @@ This stack currently uses Gitea as the Git server and Woodpecker for CI/CD. The 
 
 ## Start
 
-Create the external volumes first:
+Create `.env` from the example and fill the first admin account:
 
 ```sh
-./scripts/create-external-volumes.sh
+cp .env.example .env
 ```
 
-These volumes are external on purpose:
+Required first-admin fields:
+
+```text
+GITEA_ADMIN_USERNAME
+GITEA_ADMIN_EMAIL
+GITEA_ADMIN_PASSWORD
+```
+
+Use single quotes around `GITEA_ADMIN_PASSWORD`, especially when the password contains spaces or shell-sensitive characters such as `$`, `!`, `#`, `&`, or `;`.
+
+`GITEA_ADMIN_USERNAME` is the single source of truth for the first administrator. The initializer creates this account as the Gitea admin user, and `docker-compose.yml` passes the same value to Woodpecker as `WOODPECKER_ADMIN`.
+
+Run the initializer:
+
+```sh
+./scripts/init-devflow.sh
+```
+
+The first run creates external Docker volumes, starts Gitea, and creates the Gitea admin user. If Woodpecker OAuth is not configured yet, the script stops after Gitea is ready and prints the next OAuth step. After filling `WOODPECKER_GITEA_CLIENT` and `WOODPECKER_GITEA_SECRET`, run the same script again to start Woodpecker.
+
+The external volumes are:
 
 ```text
 devflow_gitea-data
@@ -21,13 +41,6 @@ devflow_woodpecker-agent-config
 ```
 
 Because they are external, `docker compose down -v` will not delete the Git server and CI/CD data. Do not remove `external: true` unless you are intentionally rebuilding the stack from scratch.
-
-Then start the stack:
-
-```sh
-cp .env.example .env
-docker compose up -d
-```
 
 ## Image Versions
 
@@ -67,16 +80,34 @@ When adding new services to this compose stack, prefer the next nearby `52xx` po
 
 ## Woodpecker OAuth
 
-Create an OAuth2 application in Gitea before signing in to Woodpecker:
+Create an OAuth2 application in Gitea before signing in to Woodpecker.
 
-- Gitea user OAuth apps: http://localhost:5200/user/settings/applications
-- Callback URL: `http://localhost:5201/authorize`
+1. Open Gitea: http://localhost:5200
+2. Sign in with your Gitea user.
+3. Open user settings: http://localhost:5200/user/settings/applications
+4. In "Manage OAuth2 Applications", create a new OAuth2 application.
+5. Use these values:
 
-Copy the generated client ID and secret into `.env`:
+```text
+Application Name: Woodpecker
+Redirect URI:     http://localhost:5201/authorize
+```
+
+6. Copy the generated client ID and client secret into `.env`:
 
 ```sh
 WOODPECKER_GITEA_CLIENT=...
 WOODPECKER_GITEA_SECRET=...
 ```
+
+7. Run the initializer again:
+
+```sh
+./scripts/init-devflow.sh
+```
+
+8. Open Woodpecker and sign in with Gitea: http://localhost:5201
+
+Woodpecker admin is derived from `GITEA_ADMIN_USERNAME`; do not set a separate Woodpecker admin username.
 
 Gitea and Woodpecker data are stored in external Docker volumes.
