@@ -139,9 +139,14 @@ if is_placeholder "${WOODPECKER_GITEA_CLIENT:-}" || is_placeholder "${WOODPECKER
   exit 0
 fi
 
+# Build the local clone wrapper before starting Woodpecker. The wrapper lets
+# Gitea keep public gitea.localhost clone URLs while CI containers clone through
+# the Docker-network service name gitea:5200.
+docker compose build woodpecker-git-clone-localhost
+
 docker compose up -d woodpecker-server woodpecker-agent
 
 printf '\n%s\n' 'DevFlow is ready.'
-printf '%s\n' '  Gitea:       http://localhost:5200'
+printf '%s\n' '  Gitea:       http://gitea.localhost:5200'
 printf '%s\n' '  Woodpecker:  http://localhost:5201'
 printf '  Admin user:  %s\n' "$GITEA_ADMIN_USERNAME"

@@ -78,7 +78,11 @@ Current allocation:
 
 When adding new services to this compose stack, prefer the next nearby `52xx` port instead of unrelated defaults such as `3000`, `8000`, or `8080`.
 
-Gitea intentionally uses `http://gitea.localhost:5200` instead of `http://gitea:3000` or `http://localhost:5200` as the forge URL. Browser links need a host-reachable URL, while Woodpecker containers also need to call the same URL. The compose file gives the Gitea service the Docker network alias `gitea.localhost` and makes Gitea listen on container port `5200`, so the same URL works from both places.
+Gitea intentionally uses `http://gitea.localhost:5200` instead of `http://gitea:3000` or `http://localhost:5200` as the forge URL. Browser links need a host-reachable URL, while Woodpecker also needs repository metadata to point at the same public forge URL.
+
+The compose file pins the default Docker network to `devflow_default`, and the Woodpecker agent uses `WOODPECKER_BACKEND_DOCKER_NETWORK=devflow_default`, so job containers can reach Gitea by Docker service name.
+
+Woodpecker's default Git clone step needs one extra local fix: Git/libcurl treats `*.localhost` as loopback inside the clone container. DevFlow therefore builds a small local wrapper image, `devflow/woodpecker-git-clone-localhost:2.9.1`, around the pinned `woodpeckerci/plugin-git:2.9.1`. It keeps public Gitea links as `http://gitea.localhost:5200`, but rewrites the clone remote inside CI containers to `http://gitea:5200`.
 
 ## Woodpecker OAuth
 

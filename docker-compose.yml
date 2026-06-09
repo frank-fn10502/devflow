@@ -1,6 +1,20 @@
 name: devflow
 
 services:
+  woodpecker-git-clone-localhost:
+    # Local wrapper around the pinned Woodpecker git clone plugin.
+    #
+    # Gitea advertises http://gitea.localhost:5200 as the public clone URL.
+    # Inside clone containers, Git/libcurl treats *.localhost as loopback and
+    # would connect to the clone container itself. This wrapper keeps the public
+    # URL intact, but rewrites only the clone remote to http://gitea:5200 inside
+    # the devflow Docker network.
+    image: devflow/woodpecker-git-clone-localhost:2.9.1
+    build:
+      context: ./woodpecker-git-clone-localhost
+    profiles:
+      - build-tools
+
   gitea:
     # Pin exact stable versions. Do not use floating tags such as latest or v3;
     # unexpected upgrades can introduce migrations or behavior changes.
@@ -54,6 +68,9 @@ services:
       WOODPECKER_ADMIN: ${GITEA_ADMIN_USERNAME:-}
       WOODPECKER_HOST: ${WOODPECKER_HOST:-http://localhost:5201}
       WOODPECKER_AGENT_SECRET: ${WOODPECKER_AGENT_SECRET}
+      # Use the local wrapper image so repositories can keep public
+      # gitea.localhost clone links while CI containers clone via gitea:5200.
+      WOODPECKER_DEFAULT_CLONE_PLUGIN: devflow/woodpecker-git-clone-localhost:2.9.1
       WOODPECKER_GITEA: "true"
       WOODPECKER_GITEA_URL: ${WOODPECKER_GITEA_URL:-http://gitea.localhost:5200}
       WOODPECKER_GITEA_CLIENT: ${WOODPECKER_GITEA_CLIENT}
