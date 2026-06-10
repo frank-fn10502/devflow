@@ -111,6 +111,8 @@ After DevFlow is ready, create a temporary Gitea repository from the tracked smo
 
 The script creates `woodpecker-smoke-test/` from `templates/woodpecker-smoke-test/`, initializes it as its own Git repository, creates `GITEA_ADMIN_USERNAME/woodpecker-smoke-test` in Gitea, and pushes the first commit.
 
+The smoke script uses `http://localhost:5200` for host-side Gitea API and Git push access. Override it with `GITEA_SMOKE_GITEA_URL` only if Gitea is exposed somewhere else.
+
 The generated `woodpecker-smoke-test/` directory is ignored by the DevFlow repository. The reusable source is the template directory.
 
 Enable the new repository in Woodpecker, then push another commit to `woodpecker-smoke-test` to verify the full Gitea webhook, Woodpecker clone, and pipeline path.

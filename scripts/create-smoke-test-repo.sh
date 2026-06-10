@@ -52,20 +52,21 @@ json_escape() {
 }
 
 wait_for_gitea() {
-  printf '%s\n' 'Waiting for Gitea...'
+  printf 'Waiting for Gitea at %s...\n' "$GITEA_URL"
 
   i=0
-  while [ "$i" -lt 60 ]; do
-    if curl -fsS "$GITEA_URL" >/dev/null 2>&1; then
+  while [ "$i" -lt 15 ]; do
+    if curl --connect-timeout 2 --max-time 5 -fsS "$GITEA_URL" >/dev/null 2>&1; then
       printf '%s\n' 'Gitea is ready.'
       return 0
     fi
 
     i=$((i + 1))
-    sleep 2
+    sleep 1
   done
 
   printf 'Timed out waiting for Gitea at %s\n' "$GITEA_URL" >&2
+  printf '%s\n' 'Open that URL in this same shell environment or set GITEA_SMOKE_GITEA_URL.' >&2
   exit 1
 }
 
@@ -166,7 +167,7 @@ fi
 require_env GITEA_ADMIN_USERNAME
 require_env GITEA_ADMIN_PASSWORD
 
-GITEA_URL="${GITEA_SMOKE_GITEA_URL:-${WOODPECKER_EXPERT_FORGE_OAUTH_HOST:-http://gitea.localhost:5200}}"
+GITEA_URL="${GITEA_SMOKE_GITEA_URL:-http://localhost:5200}"
 GITEA_URL="${GITEA_URL%/}"
 GITEA_NETRC_MACHINE="${GITEA_URL#*://}"
 GITEA_NETRC_MACHINE="${GITEA_NETRC_MACHINE%%/*}"
