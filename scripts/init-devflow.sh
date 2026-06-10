@@ -208,11 +208,21 @@ wait_for_gitea() {
   exit 1
 }
 
-if [ ! -f "$ENV_FILE" ]; then
-  printf 'Missing %s. Create it first:\n' "$ENV_FILE" >&2
-  printf '%s\n' '  cp .env.example .env' >&2
-  exit 1
-fi
+ensure_env_file() {
+  if [ -f "$ENV_FILE" ]; then
+    return 0
+  fi
+
+  if [ ! -f .env.example ]; then
+    printf 'Missing %s and .env.example; cannot create local environment file.\n' "$ENV_FILE" >&2
+    exit 1
+  fi
+
+  cp .env.example "$ENV_FILE"
+  printf 'created %s from .env.example\n' "$ENV_FILE"
+}
+
+ensure_env_file
 
 # shellcheck disable=SC1090
 . "$ENV_SOURCE"
