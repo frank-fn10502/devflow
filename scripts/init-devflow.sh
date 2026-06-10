@@ -208,6 +208,20 @@ wait_for_gitea() {
   exit 1
 }
 
+print_oauth_instructions() {
+  printf '\n%s\n' 'Gitea admin is ready. Configure Woodpecker OAuth next:'
+  printf '%s\n' '  1. Open Gitea OAuth applications:'
+  printf '%s\n' '     http://gitea.localhost:5200/user/settings/applications'
+  printf '  2. Sign in as: %s\n' "$GITEA_ADMIN_USERNAME"
+  printf '%s\n' '  3. Create a new OAuth2 application with:'
+  printf '%s\n' '     Application Name: Woodpecker'
+  printf '%s\n' '     Redirect URI:     http://localhost:5201/authorize'
+  printf '%s\n' '  4. Copy the generated values into .env:'
+  printf '%s\n' '     WOODPECKER_GITEA_CLIENT=<client-id>'
+  printf '%s\n' '     WOODPECKER_GITEA_SECRET=<client-secret>'
+  printf '%s\n' '  5. Run ./scripts/init-devflow.sh again to start Woodpecker.'
+}
+
 ensure_env_file() {
   if [ -f "$ENV_FILE" ]; then
     return 0
@@ -262,11 +276,7 @@ else
 fi
 
 if is_placeholder "${WOODPECKER_GITEA_CLIENT:-}" || is_placeholder "${WOODPECKER_GITEA_SECRET:-}"; then
-  printf '\n%s\n' 'Gitea admin is ready, but Woodpecker OAuth is not configured yet.'
-  printf '%s\n' 'Create a Gitea OAuth2 application with this redirect URI:'
-  printf '%s\n' '  http://localhost:5201/authorize'
-  printf '%s\n' 'Then fill WOODPECKER_GITEA_CLIENT and WOODPECKER_GITEA_SECRET in .env,'
-  printf '%s\n' 'and run this script again to start Woodpecker.'
+  print_oauth_instructions
   exit 0
 fi
 

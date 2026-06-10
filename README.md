@@ -74,31 +74,30 @@ Woodpecker's default Git clone step needs one extra local fix: Git/libcurl treat
 
 Create an OAuth2 application in Gitea before signing in to Woodpecker.
 
-1. Open Gitea: http://gitea.localhost:5200
-2. Sign in with your Gitea user.
-3. Open user settings: http://gitea.localhost:5200/user/settings/applications
-4. In "Manage OAuth2 Applications", create a new OAuth2 application.
-5. Use these values:
+1. Open Gitea OAuth applications: http://gitea.localhost:5200/user/settings/applications
+2. Sign in as `GITEA_ADMIN_USERNAME`.
+3. In "Manage OAuth2 Applications", create a new OAuth2 application.
+4. Use these values:
 
 ```text
 Application Name: Woodpecker
 Redirect URI:     http://localhost:5201/authorize
 ```
 
-6. Copy the generated client ID and client secret into `.env`:
+5. Copy the generated client ID and client secret into `.env`:
 
 ```sh
 WOODPECKER_GITEA_CLIENT=...
 WOODPECKER_GITEA_SECRET=...
 ```
 
-7. Run the initializer again:
+6. Run the initializer again:
 
 ```sh
 ./scripts/init-devflow.sh
 ```
 
-8. Open Woodpecker and sign in with Gitea: http://localhost:5201
+7. Open Woodpecker and sign in with Gitea: http://localhost:5201
 
 Woodpecker admin is derived from `GITEA_ADMIN_USERNAME`; do not set a separate Woodpecker admin username.
 
