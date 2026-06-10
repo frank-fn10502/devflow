@@ -10,8 +10,11 @@
 # Persistent service data should live in external Docker volumes instead.
 data/
 
+# Generated smoke-test repository. The tracked source lives in
+# templates/woodpecker-smoke-test/.
+/woodpecker-smoke-test/
+
 # Editor and temporary files.
 *.swp
 *.swo
 *~
-

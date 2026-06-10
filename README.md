@@ -116,4 +116,18 @@ WOODPECKER_GITEA_SECRET=...
 
 Woodpecker admin is derived from `GITEA_ADMIN_USERNAME`; do not set a separate Woodpecker admin username.
 
+## Smoke Test Repository
+
+After DevFlow is ready, create a temporary Gitea repository from the tracked smoke-test template:
+
+```sh
+./scripts/create-smoke-test-repo.sh
+```
+
+The script creates `woodpecker-smoke-test/` from `templates/woodpecker-smoke-test/`, initializes it as its own Git repository, creates `GITEA_ADMIN_USERNAME/woodpecker-smoke-test` in Gitea, and pushes the first commit.
+
+The generated `woodpecker-smoke-test/` directory is ignored by the DevFlow repository. The reusable source is the template directory.
+
+Enable the new repository in Woodpecker, then push another commit to `woodpecker-smoke-test` to verify the full Gitea webhook, Woodpecker clone, and pipeline path.
+
 Gitea and Woodpecker data are stored in external Docker volumes.
