@@ -35,7 +35,7 @@ Use exact stable image tags in `docker-compose.yml`. Do not use floating tags su
 Current pinned versions:
 
 ```text
-Gitea       docker.gitea.com/gitea:1.26.2
+Gitea       gitea/gitea:1.26.2
 Woodpecker  woodpeckerci/woodpecker-server:v3.15.0
 Woodpecker  woodpeckerci/woodpecker-agent:v3.15.0
 ```
