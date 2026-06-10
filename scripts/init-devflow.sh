@@ -11,6 +11,10 @@ set -eu
 # This avoids the dangerous split-brain case where Gitea admin and Woodpecker
 # admin are typed separately and drift apart.
 
+SCRIPT_DIR="$(CDPATH= cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
 ENV_FILE="${ENV_FILE:-.env}"
 
 is_placeholder() {

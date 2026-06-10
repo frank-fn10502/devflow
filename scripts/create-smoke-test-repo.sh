@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
 
+SCRIPT_DIR="$(CDPATH= cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
 ENV_FILE="${ENV_FILE:-.env}"
 REPO_NAME="${SMOKE_REPO_NAME:-woodpecker-smoke-test}"
 TARGET_DIR="${SMOKE_REPO_DIR:-$REPO_NAME}"
