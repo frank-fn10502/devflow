@@ -6,6 +6,11 @@ REPO_ROOT="$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT"
 
 ENV_FILE="${ENV_FILE:-.env}"
+ENV_SOURCE="$ENV_FILE"
+case "$ENV_SOURCE" in
+  /*|*/*) ;;
+  *) ENV_SOURCE="./$ENV_SOURCE" ;;
+esac
 REPO_NAME="${SMOKE_REPO_NAME:-woodpecker-smoke-test}"
 TARGET_DIR="${SMOKE_REPO_DIR:-$REPO_NAME}"
 TEMPLATE_DIR="${SMOKE_TEMPLATE_DIR:-templates/woodpecker-smoke-test}"
@@ -156,7 +161,7 @@ if [ ! -d "$TEMPLATE_DIR" ]; then
 fi
 
 # shellcheck disable=SC1090
-. "$ENV_FILE"
+. "$ENV_SOURCE"
 
 require_env GITEA_ADMIN_USERNAME
 require_env GITEA_ADMIN_PASSWORD
