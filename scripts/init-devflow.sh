@@ -144,13 +144,13 @@ require_env() {
 }
 
 gitea_user_exists() {
-  docker exec --user git gitea gitea admin user list \
+  docker exec --user git devflow-gitea gitea admin user list \
     | awk 'NR > 1 {print $2}' \
     | grep -Fx "$GITEA_ADMIN_USERNAME" >/dev/null
 }
 
 gitea_is_installed() {
-  docker exec --user git gitea sh -c \
+  docker exec --user git devflow-gitea sh -c \
     "grep -Eq '^INSTALL_LOCK[[:space:]]*=[[:space:]]*true$' /data/gitea/conf/app.ini"
 }
 
@@ -251,7 +251,7 @@ else
   require_env GITEA_ADMIN_EMAIL
   require_env GITEA_ADMIN_PASSWORD
 
-  docker exec --user git gitea gitea admin user create \
+  docker exec --user git devflow-gitea gitea admin user create \
     --username "$GITEA_ADMIN_USERNAME" \
     --email "$GITEA_ADMIN_EMAIL" \
     --password "$GITEA_ADMIN_PASSWORD" \

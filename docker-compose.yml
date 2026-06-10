@@ -19,7 +19,7 @@ services:
     # Pin exact stable versions. Do not use floating tags such as latest or v3;
     # unexpected upgrades can introduce migrations or behavior changes.
     image: gitea/gitea:1.26.2
-    container_name: gitea
+    container_name: devflow-gitea
     restart: unless-stopped
     environment:
       USER_UID: "1000"
@@ -53,7 +53,7 @@ services:
   woodpecker-server:
     # Pin exact stable versions. Keep server and agent on the same version.
     image: woodpeckerci/woodpecker-server:v3.15.0
-    container_name: woodpecker-server
+    container_name: devflow-woodpecker-server
     restart: unless-stopped
     depends_on:
       - gitea
@@ -86,7 +86,7 @@ services:
   woodpecker-agent:
     # Pin exact stable versions. Keep server and agent on the same version.
     image: woodpeckerci/woodpecker-agent:v3.15.0
-    container_name: woodpecker-agent
+    container_name: devflow-woodpecker-agent
     command: agent
     restart: unless-stopped
     depends_on:
