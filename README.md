@@ -68,7 +68,7 @@ Gitea intentionally uses `http://gitea.localhost:5200` instead of `http://gitea:
 
 The compose file pins the default Docker network to `devflow_default`, and the Woodpecker agent uses `WOODPECKER_BACKEND_DOCKER_NETWORK=devflow_default`, so job containers can reach Gitea by Docker service name.
 
-Woodpecker's default Git clone step needs one extra local fix: Git/libcurl treats `*.localhost` as loopback inside the clone container. DevFlow therefore builds a small local wrapper image, `devflow/woodpecker-git-clone-localhost:2.9.1`, around the pinned `woodpeckerci/plugin-git:2.9.1`. It keeps public Gitea links as `http://gitea.localhost:5200`, but rewrites that clone remote inside CI containers to `http://gitea:5200`.
+Woodpecker's default Git clone step needs one extra local fix: Git/libcurl treats localhost-style hosts as loopback inside the clone container. DevFlow therefore builds a small local wrapper image, `devflow/woodpecker-git-clone-localhost:2.9.1`, around the pinned `woodpeckerci/plugin-git:2.9.1`. It keeps public Gitea links as `http://gitea.localhost:5200`, but rewrites DevFlow clone remotes such as `http://gitea.localhost:5200/...` or `http://localhost:5200/...` inside CI containers to `http://gitea:5200/...`.
 
 ## Woodpecker OAuth
 

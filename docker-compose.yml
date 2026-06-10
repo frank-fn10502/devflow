@@ -24,7 +24,7 @@ services:
     environment:
       USER_UID: "1000"
       USER_GID: "1000"
-      GITEA__server__DOMAIN: localhost
+      GITEA__server__DOMAIN: gitea.localhost
       GITEA__server__HTTP_PORT: "5200"
       GITEA__server__ROOT_URL: http://gitea.localhost:5200/
       GITEA__server__SSH_DOMAIN: localhost
