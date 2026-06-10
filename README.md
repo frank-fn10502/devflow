@@ -6,23 +6,11 @@ This stack currently uses Gitea as the Git server and Woodpecker for CI/CD. The 
 
 ## Start
 
-Create `.env` from the example and fill the first admin account:
+Create `.env` from the example:
 
 ```sh
 cp .env.example .env
 ```
-
-Required first-admin fields:
-
-```text
-GITEA_ADMIN_USERNAME
-GITEA_ADMIN_EMAIL
-GITEA_ADMIN_PASSWORD
-```
-
-Use single quotes around `GITEA_ADMIN_PASSWORD`, especially when the password contains spaces or shell-sensitive characters such as `$`, `!`, `#`, `&`, or `;`.
-
-`GITEA_ADMIN_USERNAME` is the single source of truth for the first administrator. The initializer creates this account as the Gitea admin user, and `docker-compose.yml` passes the same value to Woodpecker as `WOODPECKER_ADMIN`.
 
 Run the initializer:
 
@@ -30,7 +18,11 @@ Run the initializer:
 ./scripts/init-devflow.sh
 ```
 
-The first run creates external Docker volumes, starts Gitea, and creates the Gitea admin user. If Woodpecker OAuth is not configured yet, the script stops after Gitea is ready and prints the next OAuth step. After filling `WOODPECKER_GITEA_CLIENT` and `WOODPECKER_GITEA_SECRET`, run the same script again to start Woodpecker.
+The first run generates `WOODPECKER_AGENT_SECRET`, prompts for the first Gitea admin account if needed, saves those values to `.env`, creates external Docker volumes, starts Gitea, and creates the Gitea admin user.
+
+`GITEA_ADMIN_USERNAME` is the single source of truth for the first administrator. The initializer creates this account as the Gitea admin user, and `docker-compose.yml` passes the same value to Woodpecker as `WOODPECKER_ADMIN`.
+
+If Woodpecker OAuth is not configured yet, the script stops after Gitea is ready and prints the next OAuth step. After filling `WOODPECKER_GITEA_CLIENT` and `WOODPECKER_GITEA_SECRET`, run the same script again to start Woodpecker.
 
 The external volumes are:
 

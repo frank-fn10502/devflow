@@ -29,9 +29,113 @@ is_placeholder() {
   esac
 }
 
+get_env() {
+  name="$1"
+  eval "printf '%s' \"\${$name:-}\""
+}
+
+shell_quote() {
+  printf "'"
+  printf '%s' "$1" | sed "s/'/'\\\\''/g"
+  printf "'"
+}
+
+set_env_value() {
+  name="$1"
+  value="$2"
+  tmp_file="$(mktemp)"
+  line="$name=$(shell_quote "$value")"
+
+  awk -v name="$name" -v line="$line" '
+    $0 ~ "^[[:space:]]*" name "=" {
+      if (!done) {
+        print line
+        done = 1
+      }
+      next
+    }
+    { print }
+    END {
+      if (!done) {
+        print line
+      }
+    }
+  ' "$ENV_FILE" >"$tmp_file"
+
+  mv "$tmp_file" "$ENV_FILE"
+}
+
+generate_secret() {
+  if command -v openssl >/dev/null 2>&1; then
+    openssl rand -hex 32
+  elif [ -r /dev/urandom ]; then
+    od -An -N32 -tx1 /dev/urandom | tr -d ' \n'
+    printf '\n'
+  else
+    printf 'devflow-%s-%s\n' "$$" "$(date +%s)"
+  fi
+}
+
+ensure_agent_secret() {
+  value="$(get_env WOODPECKER_AGENT_SECRET)"
+
+  if is_placeholder "$value"; then
+    value="$(generate_secret)"
+    set_env_value WOODPECKER_AGENT_SECRET "$value"
+    printf 'generated WOODPECKER_AGENT_SECRET in %s\n' "$ENV_FILE"
+  fi
+}
+
+prompt_env() {
+  name="$1"
+  label="$2"
+  secret="${3:-false}"
+  value="$(get_env "$name")"
+
+  if ! is_placeholder "$value"; then
+    return 0
+  fi
+
+  if [ ! -t 0 ]; then
+    printf 'Missing required %s in %s\n' "$name" "$ENV_FILE" >&2
+    printf 'Set %s, then run ./scripts/init-devflow.sh again.\n' "$name" >&2
+    exit 1
+  fi
+
+  value=""
+  while [ -z "$value" ]; do
+    printf '%s: ' "$label"
+
+    if [ "$secret" = true ]; then
+      saved_stty="$(stty -g)"
+      stty -echo
+      if IFS= read -r value; then
+        :
+      else
+        value=""
+      fi
+      stty "$saved_stty"
+      printf '\n'
+    else
+      if IFS= read -r value; then
+        :
+      else
+        value=""
+      fi
+    fi
+
+    if [ -z "$value" ]; then
+      printf '%s is required.\n' "$name" >&2
+    fi
+  done
+
+  set_env_value "$name" "$value"
+  printf 'saved %s in %s\n' "$name" "$ENV_FILE"
+}
+
 require_env() {
   name="$1"
-  value="$(eval "printf '%s' \"\${$name:-}\"")"
+  value="$(get_env "$name")"
 
   if is_placeholder "$value"; then
     printf 'Missing required %s in %s\n' "$name" "$ENV_FILE" >&2
@@ -109,6 +213,14 @@ if [ ! -f "$ENV_FILE" ]; then
   printf '%s\n' '  cp .env.example .env' >&2
   exit 1
 fi
+
+# shellcheck disable=SC1090
+. "$ENV_SOURCE"
+
+ensure_agent_secret
+prompt_env GITEA_ADMIN_USERNAME 'Gitea admin username'
+prompt_env GITEA_ADMIN_EMAIL 'Gitea admin email'
+prompt_env GITEA_ADMIN_PASSWORD 'Gitea admin password' true
 
 # shellcheck disable=SC1090
 . "$ENV_SOURCE"
